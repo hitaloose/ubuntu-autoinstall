@@ -1,29 +1,91 @@
-# Ubuntu autoinstall config file sample by Diolinux
+# Ubuntu Auto Install Configuration
 
-This is a sample file, it can be used as reference for your own installations. 
-The password is: 123
+## Overview
+This project contains an **autoinstall.yaml** file designed for automating the installation of Ubuntu with pre-configured settings. It utilizes **cloud-init** to streamline the installation process, setting up user credentials, system locale, keyboard layout, timezone, essential packages, and more.
 
-Use the URL of the file in the Ubuntu Installer (Subiquity)
+## Features
+- **Automated Installation**: No manual intervention required.
+- **User & System Setup**: Configures a predefined user, hostname, and password.
+- **Localization**: Sets up Brazilian Portuguese as the default locale and keyboard layout.
+- **Pre-installed Software**:
+  - **APT Packages**: LibreOffice, GIMP, Git, Wget.
+  - **Snap Packages**: Spotify (Stable Channel).
+- **Multimedia Codecs**: Ensures proper playback support.
+- **Drivers Installation**: Automatically installs necessary drivers.
+- **System Updates**: Enables automatic updates.
+- **Auto Reboot**: System reboots after the installation is completed.
 
-## Create a custom ISO (alternative)
+## Configuration Details
+The following parameters are pre-configured in `autoinstall.yaml`:
 
-1. Download the oficial Ubuntu ISO.
-2. Extract it to a folder of your preference
-3. Put the `autoinstall.yaml` file into the root of the ubuntu's extracted folder
-4. Than, use this command to create the ISO:
+```yaml
+#cloud-config
+autoinstall:
+    version: 1
+    identity:
+        realname: 'Dionatan Simioni'
+        hostname: ubuntu-desktop
+        username: diolinux
+        password: '<ENCRYPTED_PASSWORD>'
+    locale: pt_BR.utf8
+    keyboard:
+        layout: br
+    timezone: "America/Sao_Paulo"
+    packages:
+        - libreoffice
+        - gimp
+        - git
+        - wget
+    snaps:
+        - name: spotify
+          channel: stable
+          classic: false
+    codecs:
+        install: true
+    drivers:
+        install: true
+    updates: all
+    shutdown: reboot
+```
 
-````bash
+## Usage Instructions
+### 1. Preparing the Installation Media
+1. Download the latest Ubuntu ISO.
+2. Create a bootable USB using **Rufus**, **balenaEtcher**, or **Ventoy**.
+3. Place `autoinstall.yaml` in the root of the USB under the `cidata` folder.
 
-xorriso -as mkisofs -r -V "Name of the Image" -o ../name_of_your_custom_iso.iso -J -l -b boot/grub/i386-pc/eltorito.img -c boot.catalog -no-emul-boot -boot-load-size 4 -boot-info-table folder-with-the-ubuntus-iso-files/
-````
-To use the above commands make sure you have installed `xorriso` and `mkisofs` on your system.
+### 2. Booting and Installation
+1. Boot the target machine from the USB drive.
+2. Ubuntu will automatically detect `autoinstall.yaml` and proceed with the installation.
+3. Once the installation is complete, the system will reboot automatically.
 
-Variables on the above command:
-- `"Name of the Image"`: Is the name you want to appear on the file manager. TL;DR; is the ISO's label.
-- `../name_of_your_custom_iso.iso`: Is the name and path (to be saved) for your custom ISO.
-- `folder-with-the-ubuntus-iso-files/`: Path to the folder containing the files of the Ubuntu ISO that you extracted in step 2.
+## Generating an Encrypted Password
+To generate an encrypted password for use in `autoinstall.yaml`, use the following command:
 
-## Where to find the custom ISO?
+```bash
+sudo apt update && sudo apt install whois -y
+mkpasswd --method=yescrypt "your_password_here"
+```
 
-You should find the custom ISO on the upper directory of your working folder, unless you change the parameter `../name_of_your_custom_iso.iso`
-i.e. If you extracted the Ubuntu's ISO files on your downloads directory, the custom ISO will be in your home folder.
+Replace `"your_password_here"` with your desired password. The generated encrypted password can be used in the `password` field of the YAML file.
+
+## Security Considerations
+- The password is stored in an encrypted format using **bcrypt**.
+- Ensure `autoinstall.yaml` is stored securely and removed after installation.
+
+## Customization
+To modify the installation settings, edit `autoinstall.yaml` before use:
+- **Change username and password** under `identity`.
+- **Modify software packages** by adding or removing entries under `packages` and `snaps`.
+- **Adjust locale and timezone** as needed.
+
+## License
+This project is licensed under the MIT License. Feel free to modify and distribute it.
+
+## Author
+**Dionatan Simioni**
+- GitHub: [@diolinux](https://github.com/diolinux)
+- Website: [diolinux.com.br](https://www.diolinux.com.br)
+
+---
+**Enjoy a seamless Ubuntu installation with this pre-configured setup!** 🚀
